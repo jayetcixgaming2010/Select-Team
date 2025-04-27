@@ -1,0 +1,38 @@
+local function selectTeam()
+    local player = game.Players.LocalPlayer
+    if not player then return end
+
+    local character = player.Character
+    if not character then return end
+
+    if player:FindFirstChild("Data") and player.Data:FindFirstChild("Neutral") then
+        if player.Data.Neutral.Value == true then
+            local team = getgenv().Teams or "Marines" -- Giá trị mặc định nếu không có Teams
+            if team == "Pirates" or team == "Marines" then
+                local replicatedStorage = game:GetService("ReplicatedStorage")
+                local commF = replicatedStorage:FindFirstChild("Remotes") and replicatedStorage.Remotes:FindFirstChild("CommF_")
+                if commF then
+                    local args = {
+                        [1] = "SetTeam",
+                        [2] = team
+                    }
+                    local success, result = pcall(function()
+                        return commF:InvokeServer(unpack(args))
+                    end)
+                    if not success then
+                        warn("Failed to set team: " .. tostring(result))
+                    end
+                else
+                    warn("CommF_ remote not found!")
+                end
+            else
+                print("Team selection skipped: Invalid team value (" .. tostring(team) .. ")")
+            end
+        else
+            print("Player is already in a team!")
+        end
+    else
+        warn("Neutral status not found in player data!")
+    end
+end
+selectTeam()
